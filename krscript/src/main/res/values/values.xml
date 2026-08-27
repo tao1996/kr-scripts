@@ -9,5 +9,7 @@
     <item name="kr_content" type="id" />
     <item name="kr_shortcut_icon" type="id" />
     <item name="kr_icon" type="id" />
+    <item name="btn_cancel" type="id" />
+    <item name="btn_confirm" type="id" />
 
 </resources>

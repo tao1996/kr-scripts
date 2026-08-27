@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.omarea.common.shared.FilePathResolver
 import com.omarea.common.ui.ProgressBarDialog
+import com.omarea.krscript.R as KR
 import com.omarea.krscript.TryOpenActivity
 import com.omarea.krscript.config.IconPathAnalysis
 import com.omarea.krscript.config.PageConfigReader
@@ -31,10 +32,11 @@ import com.omarea.krscript.ui.ActionListFragment
 import com.omarea.krscript.ui.DialogLogFragment
 import com.omarea.krscript.ui.ParamsFileChooserRender
 import com.omarea.krscript.ui.PageMenuLoader
-import kotlinx.android.synthetic.main.activity_action_page.*
+import com.projectkr.shell.databinding.ActivityActionPageBinding
 
 
 class ActionPage : AppCompatActivity() {
+    private lateinit var binding: ActivityActionPageBinding
     private val progressBarDialog = ProgressBarDialog(this)
     private var actionsLoaded = false
     private var handler = Handler()
@@ -59,7 +61,8 @@ class ActionPage : AppCompatActivity() {
 
         ThemeModeState.switchTheme(this)
 
-        setContentView(R.layout.activity_action_page)
+        binding = ActivityActionPageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         setTitle(R.string.app_name)
@@ -208,23 +211,23 @@ class ActionPage : AppCompatActivity() {
     }
 
     private fun addFab(menuOption: PageMenuOption) {
-        action_page_fab.run {
+        binding.actionPageFab.run {
             visibility = View.VISIBLE
             setOnClickListener {
                 onMenuItemClick(menuOption)
             }
 
             if (menuOption.type == "file" && menuOption.iconPath.isEmpty()) {
-                setImageDrawable(ContextCompat.getDrawable(context, R.drawable.kr_folder))
+                setImageDrawable(ContextCompat.getDrawable(context, KR.drawable.kr_folder))
             } else if (menuOption.iconPath.isNotEmpty()) {
                 val icon = IconPathAnalysis().loadLogo(context, menuOption, false)
                 if (icon != null) {
                     setImageDrawable(icon)
                 } else {
-                    setImageDrawable(ContextCompat.getDrawable(context, R.drawable.kr_fab))
+                    setImageDrawable(ContextCompat.getDrawable(context, KR.drawable.kr_fab))
                 }
             } else {
-                setImageDrawable(ContextCompat.getDrawable(context, R.drawable.kr_fab))
+                setImageDrawable(ContextCompat.getDrawable(context, KR.drawable.kr_fab))
             }
         }
     }
@@ -320,7 +323,7 @@ class ActionPage : AppCompatActivity() {
     private fun chooseFilePath(fileSelectedInterface: ParamsFileChooserRender.FileSelectedInterface): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(READ_EXTERNAL_STORAGE), 2);
-            Toast.makeText(this, getString(R.string.kr_write_external_storage), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(KR.string.kr_write_external_storage), Toast.LENGTH_LONG).show()
             return false
         } else {
             return try {
@@ -404,11 +407,11 @@ class ActionPage : AppCompatActivity() {
         Thread(Runnable {
             currentPageConfig.run {
                 if (beforeRead.isNotEmpty()) {
-                    showDialog(getString(R.string.kr_page_before_load))
+                    showDialog(getString(KR.string.kr_page_before_load))
                     ScriptEnvironmen.executeResultRoot(activity, beforeRead, this)
                 }
 
-                showDialog(getString(R.string.kr_page_loading))
+                showDialog(getString(KR.string.kr_page_loading))
                 var items: ArrayList<NodeInfoBase>? = null
 
                 if (pageConfigSh.isNotEmpty()) {
@@ -420,13 +423,13 @@ class ActionPage : AppCompatActivity() {
                 }
 
                 if (afterRead.isNotEmpty()) {
-                    showDialog(getString(R.string.kr_page_after_load))
+                    showDialog(getString(KR.string.kr_page_after_load))
                     ScriptEnvironmen.executeResultRoot(activity, afterRead, this)
                 }
 
                 if (items != null && items.size != 0) {
                     if (loadSuccess.isNotEmpty()) {
-                        showDialog(getString(R.string.kr_page_load_success))
+                        showDialog(getString(KR.string.kr_page_load_success))
                         ScriptEnvironmen.executeResultRoot(activity, loadSuccess, this)
                     }
 
@@ -435,7 +438,7 @@ class ActionPage : AppCompatActivity() {
                             override val key = autoRunItemId
                             override fun onCompleted(result: Boolean?) {
                                 if (result != true) {
-                                    Toast.makeText(this@ActionPage, getString(R.string.kr_auto_run_item_losted), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@ActionPage, getString(KR.string.kr_auto_run_item_losted), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -447,13 +450,13 @@ class ActionPage : AppCompatActivity() {
                     }
                 } else {
                     if (loadFail.isNotEmpty()) {
-                        showDialog(getString(R.string.kr_page_load_fail))
+                        showDialog(getString(KR.string.kr_page_load_fail))
                         ScriptEnvironmen.executeResultRoot(activity, loadFail, this)
                         hideDialog()
                     }
 
                     handler.post {
-                        Toast.makeText(this@ActionPage, getString(R.string.kr_page_load_fail), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ActionPage, getString(KR.string.kr_page_load_fail), Toast.LENGTH_SHORT).show()
                     }
                     hideDialog()
                     finish()

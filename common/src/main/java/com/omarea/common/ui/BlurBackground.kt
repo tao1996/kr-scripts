@@ -20,7 +20,7 @@ class BlurBackground(private val activity: Activity) {
     private var originalH = 0
     private var mHandler: Handler = Handler(Looper.getMainLooper())
 
-    private fun captureScreen(activity: Activity): Bitmap? {
+    private fun captureScreen(activity: Activity): Bitmap {
         activity.window.decorView.destroyDrawingCache() //先清理屏幕绘制缓存(重要)
         activity.window.decorView.isDrawingCacheEnabled = true
         var bmp: Bitmap = activity.window.decorView.drawingCache
@@ -79,7 +79,7 @@ class BlurBackground(private val activity: Activity) {
         System.gc()
     }
 
-    private fun blur(bitmap: Bitmap): Bitmap? {
+    private fun blur(bitmap: Bitmap): Bitmap {
         //使用RenderScript对图片进行高斯模糊处理
         val output = Bitmap.createBitmap(bitmap) // 创建输出图片
         val rs: RenderScript = RenderScript.create(activity) // 构建一个RenderScript对象
@@ -100,10 +100,6 @@ class BlurBackground(private val activity: Activity) {
     private fun handleBlur() {
         dialogBg?.run {
             var bp = captureScreen(activity)
-            if (bp == null) {
-                return
-            }
-
             bp = blur(bp) //对屏幕截图模糊处理
             //将模糊处理后的图恢复到原图尺寸并显示出来
             bp = Bitmap.createScaledBitmap(bp, originalW, originalH, false)

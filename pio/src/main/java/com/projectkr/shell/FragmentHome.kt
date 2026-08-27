@@ -14,10 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.omarea.common.shell.KeepShellPublic
+import com.projectkr.shell.databinding.FragmentHomeBinding
 import com.projectkr.shell.ui.AdapterCpuCores
 import com.projectkr.shell.utils.CpuFrequencyUtils
 import com.projectkr.shell.utils.GpuUtils
-import kotlinx.android.synthetic.main.fragment_home.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -25,10 +25,8 @@ import kotlin.collections.HashMap
 
 
 class FragmentHome : androidx.fragment.app.Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
-    }
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var globalSPF: SharedPreferences
     private var timer: Timer? = null
@@ -39,11 +37,16 @@ class FragmentHome : androidx.fragment.app.Fragment() {
     private lateinit var spf: SharedPreferences
     private var myHandler = Handler()
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        home_clear_ram.setOnClickListener {
-            home_raminfo_text.text = getString(R.string.please_wait)
+        binding.homeClearRam.setOnClickListener {
+            binding.homeRaminfoText.text = getString(R.string.please_wait)
             Thread(Runnable {
                 KeepShellPublic.doCmdSync("sync\n" + "echo 3 > /proc/sys/vm/drop_caches\n" + "echo 1 > /proc/sys/vm/compact_memory")
                 myHandler.postDelayed({
@@ -55,8 +58,8 @@ class FragmentHome : androidx.fragment.app.Fragment() {
                 }, 600)
             }).start()
         }
-        home_clear_swap.setOnClickListener {
-            home_zramsize_text.text = getString(R.string.please_wait)
+        binding.homeClearSwap.setOnClickListener {
+            binding.homeZramsizeText.text = getString(R.string.please_wait)
             Thread(Runnable {
                 KeepShellPublic.doCmdSync("sync\n" + "echo 1 > /proc/sys/vm/compact_memory")
                 myHandler.postDelayed({
@@ -110,8 +113,8 @@ class FragmentHome : androidx.fragment.app.Fragment() {
             activityManager!!.getMemoryInfo(info)
             val totalMem = (info.totalMem / 1024 / 1024f).toInt()
             val availMem = (info.availMem / 1024 / 1024f).toInt()
-            home_raminfo_text.text = "${((totalMem - availMem) * 100 / totalMem)}% (${totalMem / 1024 + 1}GB)"
-            home_raminfo.setData(totalMem.toFloat(), availMem.toFloat())
+            binding.homeRaminfoText.text = "${((totalMem - availMem) * 100 / totalMem)}% (${totalMem / 1024 + 1}GB)"
+            binding.homeRaminfo.setData(totalMem.toFloat(), availMem.toFloat())
             val swapInfo = KeepShellPublic.doCmdSync("free -m | grep Swap")
             if (swapInfo.contains("Swap")) {
                 try {
@@ -120,11 +123,11 @@ class FragmentHome : androidx.fragment.app.Fragment() {
                         val total = swapInfos.substring(0, swapInfos.indexOf(" ")).trim().toInt()
                         val use = swapInfos.substring(swapInfos.indexOf(" ")).trim().toInt()
                         val free = total - use
-                        home_swapstate_chat.setData(total.toFloat(), free.toFloat())
+                        binding.homeSwapstateChat.setData(total.toFloat(), free.toFloat())
                         if (total > 99) {
-                            home_zramsize_text.text = "${(use * 100.0 / total).toInt()}% (${format1(total / 1024.0)}GB)"
+                            binding.homeZramsizeText.text = "${(use * 100.0 / total).toInt()}% (${format1(total / 1024.0)}GB)"
                         } else {
-                            home_zramsize_text.text = "${(use * 100.0 / total).toInt()}% (${total}MB)"
+                            binding.homeZramsizeText.text = "${(use * 100.0 / total).toInt()}% (${total}MB)"
                         }
                     }
                 } catch (ex: java.lang.Exception) {
@@ -168,27 +171,27 @@ class FragmentHome : androidx.fragment.app.Fragment() {
         val gpuLoad = GpuUtils.getGpuLoad()
         myHandler.post {
             try {
-                cpu_core_count.text = String.format(getString(R.string.monitor_core_count), coreCount)
+                binding.cpuCoreCount.text = String.format(getString(R.string.monitor_core_count), coreCount)
 
-                home_gpu_freq.text = gpuFreq
-                home_gpu_load.text = String.format(getString(R.string.monitor_laod), gpuLoad)
+                binding.homeGpuFreq.text = gpuFreq
+                binding.homeGpuLoad.text = String.format(getString(R.string.monitor_laod), gpuLoad)
                 if (gpuLoad > -1) {
-                    home_gpu_chat.setData(100.toFloat(), (100 - gpuLoad).toFloat())
+                    binding.homeGpuChat.setData(100.toFloat(), (100 - gpuLoad).toFloat())
                 }
                 if (loads.containsKey(-1)) {
-                    cpu_core_total_load.text = String.format(getString(R.string.monitor_laod), loads.get(-1)!!.toInt())
-                    home_cpu_chat.setData(100.toFloat(), (100 - loads.get(-1)!!.toInt()).toFloat())
+                    binding.cpuCoreTotalLoad.text = String.format(getString(R.string.monitor_laod), loads.get(-1)!!.toInt())
+                    binding.homeCpuChat.setData(100.toFloat(), (100 - loads.get(-1)!!.toInt()).toFloat())
                 }
-                if (cpu_core_list.adapter == null) {
+                if (binding.cpuCoreList.adapter == null) {
                     if (cores.size < 6) {
-                        cpu_core_list.numColumns = 2
+                        binding.cpuCoreList.numColumns = 2
                     }
-                    cpu_core_list.adapter = AdapterCpuCores(context!!, cores)
+                    binding.cpuCoreList.adapter = AdapterCpuCores(context!!, cores)
                 } else {
-                    (cpu_core_list.adapter as AdapterCpuCores).setData(cores)
+                    (binding.cpuCoreList.adapter as AdapterCpuCores).setData(cores)
                 }
             } catch (ex: Exception) {
-                Log.e("Exception", ex.message)
+                Log.e("Exception", ex.message ?: "")
             }
         }
         updateTick++
@@ -209,5 +212,10 @@ class FragmentHome : androidx.fragment.app.Fragment() {
     override fun onPause() {
         stopTimer()
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
