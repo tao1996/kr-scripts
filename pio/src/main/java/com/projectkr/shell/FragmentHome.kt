@@ -15,13 +15,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.omarea.common.shell.KeepShellPublic
 import com.projectkr.shell.databinding.FragmentHomeBinding
-import com.projectkr.shell.ui.AdapterCpuCores
-import com.projectkr.shell.utils.CpuFrequencyUtils
 import com.projectkr.shell.utils.GpuUtils
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class FragmentHome : androidx.fragment.app.Fragment() {
@@ -79,8 +76,6 @@ class FragmentHome : androidx.fragment.app.Fragment() {
         if (isDetached) {
             return
         }
-        maxFreqs.clear()
-        minFreqs.clear()
         stopTimer()
         timer = Timer()
         timer!!.schedule(object : TimerTask() {
@@ -91,11 +86,8 @@ class FragmentHome : androidx.fragment.app.Fragment() {
         updateRamInfo()
     }
 
-    private var coreCount = -1
     private var activityManager: ActivityManager? = null
 
-    private var minFreqs = HashMap<Int, String>()
-    private var maxFreqs = HashMap<Int, String>()
     fun format1(value: Double): String {
 
         var bd = BigDecimal(value)
@@ -139,66 +131,20 @@ class FragmentHome : androidx.fragment.app.Fragment() {
         }
     }
 
-    private var updateTick = 0
-
     @SuppressLint("SetTextI18n")
     private fun updateInfo() {
-        if (coreCount < 1) {
-            coreCount = CpuFrequencyUtils.getCoreCount()
-        }
-        val cores = ArrayList<CpuCoreInfo>()
-        val loads = CpuFrequencyUtils.getCpuLoad()
-        for (coreIndex in 0 until coreCount) {
-            val core = CpuCoreInfo()
-
-            core.currentFreq = CpuFrequencyUtils.getCurrentFrequency("cpu$coreIndex")
-            if (!maxFreqs.containsKey(coreIndex) || (core.currentFreq != "" && maxFreqs.get(coreIndex).isNullOrEmpty())) {
-                maxFreqs.put(coreIndex, CpuFrequencyUtils.getCurrentMaxFrequency("cpu" + coreIndex))
-            }
-            core.maxFreq = maxFreqs.get(coreIndex)
-
-            if (!minFreqs.containsKey(coreIndex) || (core.currentFreq != "" && minFreqs.get(coreIndex).isNullOrEmpty())) {
-                minFreqs.put(coreIndex, CpuFrequencyUtils.getCurrentMinFrequency("cpu" + coreIndex))
-            }
-            core.minFreq = minFreqs.get(coreIndex)
-
-            if (loads.containsKey(coreIndex)) {
-                core.loadRatio = loads.get(coreIndex)!!
-            }
-            cores.add(core)
-        }
         val gpuFreq = GpuUtils.getGpuFreq() + "Mhz"
         val gpuLoad = GpuUtils.getGpuLoad()
         myHandler.post {
             try {
-                binding.cpuCoreCount.text = String.format(getString(R.string.monitor_core_count), coreCount)
-
                 binding.homeGpuFreq.text = gpuFreq
                 binding.homeGpuLoad.text = String.format(getString(R.string.monitor_laod), gpuLoad)
                 if (gpuLoad > -1) {
                     binding.homeGpuChat.setData(100.toFloat(), (100 - gpuLoad).toFloat())
                 }
-                if (loads.containsKey(-1)) {
-                    binding.cpuCoreTotalLoad.text = String.format(getString(R.string.monitor_laod), loads.get(-1)!!.toInt())
-                    binding.homeCpuChat.setData(100.toFloat(), (100 - loads.get(-1)!!.toInt()).toFloat())
-                }
-                if (binding.cpuCoreList.adapter == null) {
-                    if (cores.size < 6) {
-                        binding.cpuCoreList.numColumns = 2
-                    }
-                    binding.cpuCoreList.adapter = AdapterCpuCores(context!!, cores)
-                } else {
-                    (binding.cpuCoreList.adapter as AdapterCpuCores).setData(cores)
-                }
             } catch (ex: Exception) {
                 Log.e("Exception", ex.message ?: "")
             }
-        }
-        updateTick++
-        if (updateTick > 5) {
-            updateTick = 0
-            minFreqs.clear()
-            maxFreqs.clear()
         }
     }
 
