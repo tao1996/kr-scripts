@@ -8,7 +8,6 @@
     <string name="app_name">PIO</string>
     <string name="btn_exit">退出</string>
     <string name="float_monitor_tips">双击悬浮窗即可关闭，或按住拖动调整位置</string>
-    <string name="permission_float">请授权显示悬浮窗权限！</string>
     <string name="please_wait">请稍等</string>
     <string name="title_activity_action_page">功能分页</string>
 
@@ -19,14 +18,8 @@
     <string name="appliction_author">作者：嘟嘟ski</string>
     <string name="engine_version_name">基于[Kr-Script4.0.3]创作</string>
 
-    <string name="tab_home">首页</string>
     <string name="tab_favorites">收藏夹</string>
     <string name="tab_pages">全部</string>
-
-    <string name="monitor_laod">负载：%d%%</string>
-    <string name="monitor_core_count">%d 核心</string>
-    <string name="monitor_cache_cleared">已回收用于缓存的RAM</string>
-    <string name="monitor_ram_cleared">RAM碎片已整理</string>
 
     <string name="copy_success">复制成功</string>
     <string name="btn_retry">重试</string>
