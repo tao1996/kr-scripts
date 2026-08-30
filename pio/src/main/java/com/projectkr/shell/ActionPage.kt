@@ -162,8 +162,8 @@ class ActionPage : AppCompatActivity() {
             return chooseFilePath(fileSelectedInterface)
         }
 
-        override fun openTerminal(command: String, title: String?) {
-            this@ActionPage.launchTerminal(command, title)
+        override fun openTerminal(command: String, env: Array<String>?, title: String?) {
+            this@ActionPage.launchTerminal(command, env, title)
         }
     }
 
@@ -282,8 +282,9 @@ class ActionPage : AppCompatActivity() {
     private fun menuItemExecute(menuOption: PageMenuOption, params: HashMap<String, String>) {
         if (menuOption.shell == RunnableNode.shellModeTerminal) {
             val command = ScriptEnvironmen.generateShellCommand(
-                    this, currentPageConfig.pageHandlerSh, params, menuOption, "")
-            launchTerminal(command, menuOption.title)
+                    this, currentPageConfig.pageHandlerSh, "")
+            val env = ScriptEnvironmen.generateShellEnv(this, params, menuOption)
+            launchTerminal(command, env, menuOption.title)
             return
         }
 
@@ -309,10 +310,11 @@ class ActionPage : AppCompatActivity() {
         dialog.isCancelable = false
     }
 
-    private fun launchTerminal(command: String, title: String?) {
+    private fun launchTerminal(command: String, env: Array<String>?, title: String?) {
         try {
             val intent = Intent(this, TerminalActivity::class.java)
             intent.putExtra("command", command)
+            intent.putExtra("env", env)
             if (!title.isNullOrEmpty()) {
                 intent.putExtra("title", title)
             }

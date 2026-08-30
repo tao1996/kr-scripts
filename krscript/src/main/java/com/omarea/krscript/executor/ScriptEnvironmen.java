@@ -420,24 +420,37 @@ public class ScriptEnvironmen {
     }
 
     /**
-     * 生成在交互式终端中执行的命令字符串（导出环境变量 + 执行器包装脚本）
+     * 生成在交互式终端中执行所需的环境变量（KEY=value 原始格式，供终端会话的 env 参数直接使用）
      *
      * @param context  Context
-     * @param cmds     要执行的脚本内容
      * @param params   参数（state/menu_id/file/folder 等）
      * @param nodeInfo 节点信息（用于 PAGE_* 环境变量）
-     * @param tag      会话标识
      */
-    public static String generateShellCommand(
+    public static String[] generateShellEnv(
             Context context,
-            String cmds,
             HashMap<String, String> params,
-            NodeInfoBase nodeInfo,
-            String tag) {
+            NodeInfoBase nodeInfo) {
         if (!inited) {
             init(context);
         }
 
+        HashMap<String, String> envParams = buildEnvParams(context, params, nodeInfo);
+
+        ArrayList<String> env = new ArrayList<>();
+        for (String key : envParams.keySet()) {
+            String value = envParams.get(key);
+            if (value == null) {
+                value = "";
+            }
+            env.add(key + "=" + value);
+        }
+        return env.toArray(new String[0]);
+    }
+
+    private static HashMap<String, String> buildEnvParams(
+            Context context,
+            HashMap<String, String> params,
+            NodeInfoBase nodeInfo) {
         HashMap<String, String> envParams = new HashMap<>();
         if (params != null) {
             envParams.putAll(params);
@@ -462,13 +475,18 @@ public class ScriptEnvironmen {
             envParams.put("PAGE_WORK_FILE", "");
         }
 
-        StringBuilder command = new StringBuilder();
-        for (String param : getVariables(envParams)) {
-            command.append("export ").append(param).append("\n");
-        }
-        command.append(getExecuteScript(context, cmds, tag));
-        command.append("\n");
-        return command.toString();
+        return envParams;
+    }
+
+    /**
+     * 生成在交互式终端中执行的命令（仅执行器包装命令，环境变量由 generateShellEnv 单独提供）
+     *
+     * @param context Context
+     * @param cmds    要执行的脚本内容
+     * @param tag     会话标识
+     */
+    public static String generateShellCommand(Context context, String cmds, String tag) {
+        return getExecuteScript(context, cmds, tag) + "\n";
     }
 }
 

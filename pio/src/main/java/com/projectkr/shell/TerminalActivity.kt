@@ -26,6 +26,7 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
     private var termView: TerminalView? = null
     private var termSession: TerminalSession? = null
     private var commandToRun: String? = null
+    private var extraEnv: Array<String>? = null
     private var commandSent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
         setContentView(R.layout.activity_terminal)
 
         val command = intent.getStringExtra("command") ?: ""
+        extraEnv = intent.getStringArrayExtra("env")
         val title = intent.getStringExtra("title")
         if (!title.isNullOrEmpty()) {
             setTitle(title)
@@ -73,11 +75,12 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
 
         val shell = if (rooted) resolveRootShell() else resolveShell()
 
-        val env = arrayOf(
+        val baseEnv = arrayOf(
                 "PATH=/sbin:/system/sbin:/system/bin:/system/xbin:/system_ext/bin:/vendor/bin:/vendor/xbin:/odm/bin",
                 "HOME=$cwd",
                 "TERM=xterm-256color"
         )
+        val env = if (extraEnv == null) baseEnv else (baseEnv + extraEnv!!)
 
         return TerminalSession(
                 shell,
@@ -116,7 +119,7 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
         val session = termSession ?: return
         commandToRun?.let { cmd ->
             // 先关闭回显，稍等片刻确保 stty 已生效，再注入命令，
-            // 这样 export 环境变量和执行器命令就不会被打印到屏幕。
+            // 这样执行器命令就不会被打印到屏幕。
             session.write("stty -echo\r")
             Handler(Looper.getMainLooper()).postDelayed({
                 if (termSession === session && session.isRunning) {

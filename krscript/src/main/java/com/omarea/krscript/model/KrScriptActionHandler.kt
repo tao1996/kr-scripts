@@ -14,7 +14,7 @@ interface KrScriptActionHandler {
     }
 
     // 在交互式终端中打开并执行命令
-    fun openTerminal(command: String, title: String?) {
+    fun openTerminal(command: String, env: Array<String>?, title: String?) {
     }
 
     interface AddToFavoritesHandler {

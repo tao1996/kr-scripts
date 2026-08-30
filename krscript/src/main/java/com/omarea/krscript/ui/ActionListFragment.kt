@@ -502,8 +502,9 @@ class ActionListFragment : androidx.fragment.app.Fragment(), PageLayoutRender.On
                 HiddenTaskThread.startTask(context, script, params, nodeInfo, onExit, onDismiss)
             }
         } else if (nodeInfo.shell == RunnableNode.shellModeTerminal) {
-            val command = ScriptEnvironmen.generateShellCommand(context, script, params, nodeInfo, "")
-            krScriptActionHandler?.openTerminal(command, nodeInfo.title)
+            val command = ScriptEnvironmen.generateShellCommand(context, script, "")
+            val env = ScriptEnvironmen.generateShellEnv(context, params, nodeInfo)
+            krScriptActionHandler?.openTerminal(command, env, nodeInfo.title)
         } else {
             val onDismiss = Runnable {
                 krScriptActionHandler?.onActionCompleted(nodeInfo)

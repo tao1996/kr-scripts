@@ -186,9 +186,10 @@ class MainActivity : AppCompatActivity() {
                 return chooseFilePath(fileSelectedInterface)
             }
 
-            override fun openTerminal(command: String, title: String?) {
+            override fun openTerminal(command: String, env: Array<String>?, title: String?) {
                 val intent = Intent(this@MainActivity, TerminalActivity::class.java)
                 intent.putExtra("command", command)
+                intent.putExtra("env", env)
                 if (title != null && title.isNotEmpty()) {
                     intent.putExtra("title", title)
                 }
