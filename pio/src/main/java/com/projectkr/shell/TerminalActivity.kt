@@ -169,31 +169,31 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
             }
 
             override fun logError(tag: String?, message: String?) {
-                if (BuildConfig.DEBUG && message != null) Log.e(tag, message)
+                if (message != null) Log.e(tag, message)
             }
 
             override fun logWarn(tag: String?, message: String?) {
-                if (BuildConfig.DEBUG && message != null) Log.w(tag, message)
+                if (message != null) Log.w(tag, message)
             }
 
             override fun logInfo(tag: String?, message: String?) {
-                if (BuildConfig.DEBUG && message != null) Log.i(tag, message)
+                if (message != null) Log.i(tag, message)
             }
 
             override fun logDebug(tag: String?, message: String?) {
-                if (BuildConfig.DEBUG && message != null) Log.d(tag, message)
+                if (message != null) Log.d(tag, message)
             }
 
             override fun logVerbose(tag: String?, message: String?) {
-                if (BuildConfig.DEBUG && message != null) Log.v(tag, message)
+                if (message != null) Log.v(tag, message)
             }
 
             override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-                if (BuildConfig.DEBUG) Log.e(tag, message + "\n" + Log.getStackTraceString(e))
+                Log.e(tag, message + "\n" + Log.getStackTraceString(e))
             }
 
             override fun logStackTrace(tag: String?, e: Exception?) {
-                if (BuildConfig.DEBUG) Log.e(tag, Log.getStackTraceString(e))
+                Log.e(tag, Log.getStackTraceString(e))
             }
         }
     }
@@ -252,31 +252,31 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
 
     // ============ 日志 ============
     override fun logError(tag: String?, message: String?) {
-        if (BuildConfig.DEBUG && message != null) Log.e(tag, message)
+        if (message != null) Log.e(tag, message)
     }
 
     override fun logWarn(tag: String?, message: String?) {
-        if (BuildConfig.DEBUG && message != null) Log.w(tag, message)
+        if (message != null) Log.w(tag, message)
     }
 
     override fun logInfo(tag: String?, message: String?) {
-        if (BuildConfig.DEBUG && message != null) Log.i(tag, message)
+        if (message != null) Log.i(tag, message)
     }
 
     override fun logDebug(tag: String?, message: String?) {
-        if (BuildConfig.DEBUG && message != null) Log.d(tag, message)
+        if (message != null) Log.d(tag, message)
     }
 
     override fun logVerbose(tag: String?, message: String?) {
-        if (BuildConfig.DEBUG && message != null) Log.v(tag, message)
+        if (message != null) Log.v(tag, message)
     }
 
     override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-        if (BuildConfig.DEBUG) Log.e(tag, message + "\n" + Log.getStackTraceString(e))
+        Log.e(tag, message + "\n" + Log.getStackTraceString(e))
     }
 
     override fun logStackTrace(tag: String?, e: Exception?) {
-        if (BuildConfig.DEBUG) Log.e(tag, Log.getStackTraceString(e))
+        Log.e(tag, Log.getStackTraceString(e))
     }
 
     override fun onDestroy() {
