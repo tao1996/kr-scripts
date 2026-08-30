@@ -192,6 +192,23 @@ public class WebViewInjector {
                         return null; // TODO
                     }
 
+                    @Nullable
+                    @Override
+                    public String path() {
+                        return null; // TODO
+                    }
+
+                    @Override
+                    public boolean multiple() {
+                        return false; // TODO
+                    }
+
+                    @NotNull
+                    @Override
+                    public String separator() {
+                        return "\n"; // TODO
+                    }
+
                     @NotNull
                     @Override
                     public String mimeType() {
