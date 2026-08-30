@@ -3,8 +3,6 @@ package com.projectkr.shell
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -118,15 +116,7 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
     private fun writeCommand() {
         val session = termSession ?: return
         commandToRun?.let { cmd ->
-            // 先关闭回显，稍等片刻确保 stty 已生效，再注入命令，
-            // 这样执行器命令就不会被打印到屏幕。
-            session.write("stty -echo\r")
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (termSession === session && session.isRunning) {
-                    session.write(cmd + "\r")
-                    session.write("stty echo\r")
-                }
-            }, 150)
+            session.write(cmd + "\r")
         }
     }
 
