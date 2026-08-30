@@ -29,6 +29,7 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ThemeModeState.switchTheme(this)
         setContentView(R.layout.activity_terminal)
 
         val command = intent.getStringExtra("command") ?: ""
