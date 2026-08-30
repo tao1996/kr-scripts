@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.FrameLayout
@@ -13,6 +14,7 @@ import com.omarea.common.shell.KeepShellPublic
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import com.termux.terminal.TextStyle
 import com.termux.view.TerminalRenderer
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
@@ -44,13 +46,14 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
         val container = findViewById<FrameLayout>(R.id.terminal_container)
 
         val view = TerminalView(this, null)
-        view.mRenderer = TerminalRenderer(40, Typeface.MONOSPACE)
+        view.mRenderer = TerminalRenderer(terminalTextSize(), Typeface.MONOSPACE)
         view.setTerminalViewClient(this)
-        view.setBackgroundColor(Color.BLACK)
 
         termView = view
         termSession = getTerminalSession()
         view.attachSession(termSession!!)
+
+        applyTerminalTheme()
 
         container.addView(view, FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -118,6 +121,30 @@ class TerminalActivity : AppCompatActivity(), TerminalViewClient {
         val session = termSession ?: return
         commandToRun?.let { cmd ->
             session.write(cmd + "\r")
+        }
+    }
+
+    private fun terminalTextSize(): Int {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                12f,
+                resources.displayMetrics
+        ).toInt()
+    }
+
+    private fun applyTerminalTheme() {
+        val view = termView ?: return
+        val isDarkMode = ThemeModeState.getThemeMode().isDarkMode
+        val bgColor = if (isDarkMode) Color.parseColor("#000000") else Color.parseColor("#F2F2F2")
+        val textColor = if (isDarkMode) Color.parseColor("#FFFFFF") else Color.parseColor("#445566")
+
+        view.setBackgroundColor(bgColor)
+
+        val colors = termSession?.getEmulator()?.mColors?.mCurrentColors
+        if (colors != null) {
+            colors[TextStyle.COLOR_INDEX_FOREGROUND] = textColor
+            colors[TextStyle.COLOR_INDEX_BACKGROUND] = bgColor
+            colors[TextStyle.COLOR_INDEX_CURSOR] = textColor
         }
     }
 
