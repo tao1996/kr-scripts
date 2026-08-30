@@ -9,13 +9,43 @@
     android:keepScreenOn="false"
     tools:openDrawer="start">
 
-    <com.omarea.common.ui.OverScrollListView
-        android:id="@+id/file_selector_list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="56dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="?android:actionBarSize">
 
-    </com.omarea.common.ui.OverScrollListView>
+        <com.omarea.common.ui.OverScrollListView
+            android:id="@+id/file_selector_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/multi_select_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btn_multi_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@android:string/cancel" />
+
+            <Button
+                android:id="@+id/btn_multi_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@android:string/ok"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
 
     <include
         layout="@layout/app_bar_main"

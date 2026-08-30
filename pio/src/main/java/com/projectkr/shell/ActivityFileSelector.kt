@@ -30,6 +30,9 @@ class ActivityFileSelector : AppCompatActivity() {
     private var adapterFileSelector: AdapterFileSelector? = null
     var extension = ""
     var mode = MODE_FILE
+    var path = ""
+    var multiple = false
+    var separator = "\n"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO:ThemeSwitch.switchTheme(this)
@@ -63,6 +66,18 @@ class ActivityFileSelector : AppCompatActivity() {
                 mode = getInt("mode")
                 if (mode == MODE_FOLDER) {
                     title = getString(R.string.title_activity_folder_selector)
+                }
+            }
+            if (containsKey("path") == true) {
+                path = "" + getString("path")
+            }
+            if (containsKey("multiple") == true) {
+                multiple = getBoolean("multiple")
+            }
+            if (containsKey("separator") == true) {
+                val sep = getString("separator")
+                if (!sep.isNullOrEmpty()) {
+                    separator = sep
                 }
             }
         }
@@ -109,8 +124,11 @@ class ActivityFileSelector : AppCompatActivity() {
     private fun loadData() {
         if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE) && checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             val sdcard = File(Environment.getExternalStorageDirectory().absolutePath)
-            if (sdcard.exists() && sdcard.isDirectory) {
-                val list = sdcard.listFiles()
+            val startDir = if (path.isNotEmpty()) File(path) else sdcard
+            val dir = if (startDir.exists() && startDir.isDirectory) startDir else sdcard
+
+            if (dir.exists() && dir.isDirectory) {
+                val list = dir.listFiles()
                 if (list == null) {
                     Toast.makeText(applicationContext, "获取文件列表失败！", Toast.LENGTH_LONG).show()
                     return
@@ -123,12 +141,31 @@ class ActivityFileSelector : AppCompatActivity() {
                     }
                 }
                 adapterFileSelector = if (mode == MODE_FOLDER) {
-                    AdapterFileSelector.FolderChooser(sdcard, onSelected, ProgressBarDialog(this))
+                    AdapterFileSelector.FolderChooser(dir, onSelected, ProgressBarDialog(this))
                 } else {
-                    AdapterFileSelector.FileChooser(sdcard, onSelected, ProgressBarDialog(this), extension)
+                    AdapterFileSelector.FileChooser(dir, onSelected, ProgressBarDialog(this), extension, multiple, separator)
                 }
 
                 binding.fileSelectorList.adapter = adapterFileSelector
+
+                if (multiple && mode == MODE_FILE) {
+                    binding.multiSelectBar.visibility = View.VISIBLE
+                    binding.btnMultiCancel.setOnClickListener {
+                        setResult(Activity.RESULT_CANCELED, Intent())
+                        finish()
+                    }
+                    binding.btnMultiConfirm.setOnClickListener {
+                        val result = adapterFileSelector!!.selectedFilesResult
+                        if (result.isNullOrEmpty()) {
+                            Toast.makeText(applicationContext, "请先选择文件！", Toast.LENGTH_SHORT).show()
+                        } else {
+                            this.setResult(Activity.RESULT_OK, Intent().putExtra("file", result))
+                            this.finish()
+                        }
+                    }
+                } else {
+                    binding.multiSelectBar.visibility = View.GONE
+                }
             }
         } else {
             requestPermissions()

@@ -25,6 +25,12 @@ class ParamsFileChooserRender(private var actionParamInfo: ActionParamInfo, priv
         fun mimeType():String?
         fun suffix():String?
         fun type(): Int
+        // 指定查找文件的起始目录
+        fun path(): String? = null
+        // 是否允许多选
+        fun multiple(): Boolean = false
+        // 多选时多个值的分隔符
+        fun separator(): String = "\n"
     }
 
 
@@ -90,6 +96,21 @@ class ParamsFileChooserRender(private var actionParamInfo: ActionParamInfo, priv
                         "folder" -> FileSelectedInterface.TYPE_FOLDER
                         else -> FileSelectedInterface.TYPE_FILE
                     }
+                }
+
+                override fun path(): String? {
+                    if (actionParamInfo.path.isNotEmpty()) {
+                        return actionParamInfo.path
+                    }
+                    return null
+                }
+
+                override fun multiple(): Boolean {
+                    return actionParamInfo.multiple
+                }
+
+                override fun separator(): String {
+                    return actionParamInfo.separator
                 }
             })
         }

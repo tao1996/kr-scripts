@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import com.projectkr.shell.R;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
 
 public class AdapterFileSelector extends BaseAdapter {
     private File[] fileArray;
@@ -27,19 +29,26 @@ public class AdapterFileSelector extends BaseAdapter {
     private String rootDir = "/"; // 根目录
     private boolean leaveRootDir = true; // 是否允许离开设定的rootDir到更父级的目录去
     private boolean folderChooserMode = false; // 是否是目录选择模式（目录选择模式下不显示文件，长按目录选中）
+    private boolean multiple = false; // 是否多选
+    private String separator = "\n"; // 多选分隔符
+    private ArrayList<File> selectedFiles = new ArrayList<File>(); // 多选已选文件
 
-    private AdapterFileSelector(File rootDir, Runnable fileSelected, ProgressBarDialog progressBarDialog, String extension) {
+    private AdapterFileSelector(File rootDir, Runnable fileSelected, ProgressBarDialog progressBarDialog, String extension, boolean multiple, String separator) {
+        this.multiple = multiple;
+        if (separator != null && !separator.isEmpty()) {
+            this.separator = separator;
+        }
         init(rootDir, fileSelected, progressBarDialog, extension);
     }
 
     public static AdapterFileSelector FolderChooser(File rootDir, Runnable fileSelected, ProgressBarDialog progressBarDialog) {
-        AdapterFileSelector adapterFileSelector = new AdapterFileSelector(rootDir, fileSelected, progressBarDialog, null);
+        AdapterFileSelector adapterFileSelector = new AdapterFileSelector(rootDir, fileSelected, progressBarDialog, null, false, null);
         adapterFileSelector.folderChooserMode = true;
         return adapterFileSelector;
     }
 
-    public static AdapterFileSelector FileChooser(File rootDir, Runnable fileSelected, ProgressBarDialog progressBarDialog, String extension) {
-        AdapterFileSelector adapterFileSelector = new AdapterFileSelector(rootDir, fileSelected, progressBarDialog, extension);
+    public static AdapterFileSelector FileChooser(File rootDir, Runnable fileSelected, ProgressBarDialog progressBarDialog, String extension, boolean multiple, String separator) {
+        AdapterFileSelector adapterFileSelector = new AdapterFileSelector(rootDir, fileSelected, progressBarDialog, extension, multiple, separator);
         adapterFileSelector.folderChooserMode = false;
         return adapterFileSelector;
     }
@@ -230,25 +239,43 @@ public class AdapterFileSelector extends BaseAdapter {
 
                 ((TextView) (view.findViewById(R.id.ItemText))).setText(fileSize);
 
+                final CheckBox checkBox = (CheckBox) view.findViewById(R.id.ItemCheckBox);
+                checkBox.setVisibility(multiple ? View.VISIBLE : View.GONE);
+                checkBox.setChecked(selectedFiles.contains(file));
+
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogHelper.Companion.confirm(view.getContext(), "选定文件？", file.getAbsolutePath(), new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!file.exists()) {
-                                    Toast.makeText(view.getContext(), "所选的文件已被删除，请重新选择！", Toast.LENGTH_SHORT).show();
-                                    return;
+                        if (!file.exists()) {
+                            Toast.makeText(view.getContext(), "所选的文件已被删除，请重新选择！", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (multiple) {
+                            if (selectedFiles.contains(file)) {
+                                selectedFiles.remove(file);
+                                checkBox.setChecked(false);
+                            } else {
+                                selectedFiles.add(file);
+                                checkBox.setChecked(true);
+                            }
+                        } else {
+                            DialogHelper.Companion.confirm(view.getContext(), "选定文件？", file.getAbsolutePath(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!file.exists()) {
+                                        Toast.makeText(view.getContext(), "所选的文件已被删除，请重新选择！", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    selectedFile = file;
+                                    fileSelected.run();
                                 }
-                                selectedFile = file;
-                                fileSelected.run();
-                            }
-                        }, new Runnable() {
-                            @Override
-                            public void run() {
+                            }, new Runnable() {
+                                @Override
+                                public void run() {
 
-                            }
-                        });
+                                }
+                            });
+                        }
                     }
                 });
             }
@@ -259,5 +286,23 @@ public class AdapterFileSelector extends BaseAdapter {
 
     public File getSelectedFile() {
         return this.selectedFile;
+    }
+
+    public String getSelectedFilesResult() {
+        if (selectedFiles.isEmpty()) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < selectedFiles.size(); i++) {
+            if (i > 0) {
+                builder.append(separator);
+            }
+            builder.append(selectedFiles.get(i).getAbsolutePath());
+        }
+        return builder.toString();
+    }
+
+    public int getSelectedFileCount() {
+        return selectedFiles.size();
     }
 }

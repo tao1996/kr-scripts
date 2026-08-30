@@ -36,6 +36,8 @@ class ActionParamInfo {
     var mime: String = ""
     // 文件后缀（仅限type=file有效）
     var suffix: String = ""
+    // 指定查找文件的起始目录（仅限type=file/folder有效）
+    var path: String = ""
     // 是否允许用户手动输入路径
     var editable: Boolean = false
     // 多个值的分隔符（仅限多选下拉）

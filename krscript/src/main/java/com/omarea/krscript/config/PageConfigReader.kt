@@ -246,6 +246,9 @@ class PageConfigReader {
                     attrName == "mime" -> {
                         actionParamInfo.mime = attrValue.toLowerCase()
                     }
+                    attrName == "path" -> {
+                        actionParamInfo.path = attrValue
+                    }
                     attrName == "readonly" -> {
                         val value = attrValue.toLowerCase().trim { it <= ' ' }
                         actionParamInfo.readonly = (value == "readonly" || value == "true" || value == "1")
@@ -349,6 +352,16 @@ class PageConfigReader {
                             }
                             "mime" -> {
                                 option.mime = parser.getAttributeValue(i).toLowerCase()
+                            }
+                            "path" -> {
+                                option.path = parser.getAttributeValue(i)
+                            }
+                            "multiple" -> {
+                                val value = parser.getAttributeValue(i)
+                                option.multiple = value == "multiple" || value == "true" || value == "1"
+                            }
+                            "separator" -> {
+                                option.separator = parser.getAttributeValue(i)
                             }
                         }
                     }

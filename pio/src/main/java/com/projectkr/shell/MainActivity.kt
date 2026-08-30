@@ -192,10 +192,19 @@ class MainActivity : AppCompatActivity() {
     private val ACTION_FILE_PATH_CHOOSER = 65400
     private val ACTION_FILE_PATH_CHOOSER_INNER = 65300
 
-    private fun chooseFilePath(extension: String) {
+    private fun chooseFilePath(extension: String, path: String, multiple: Boolean, separator: String) {
         try {
             val intent = Intent(this, ActivityFileSelector::class.java)
             intent.putExtra("extension", extension)
+            if (path.isNotEmpty()) {
+                intent.putExtra("path", path)
+            }
+            if (multiple) {
+                intent.putExtra("multiple", true)
+            }
+            if (separator != "\n") {
+                intent.putExtra("separator", separator)
+            }
             startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER_INNER)
         } catch (ex: java.lang.Exception) {
             Toast.makeText(this, "启动内置文件选择器失败！", Toast.LENGTH_SHORT).show()
@@ -210,8 +219,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             return try {
                 val suffix = fileSelectedInterface.suffix()
-                if (suffix != null && suffix.isNotEmpty()) {
-                    chooseFilePath(suffix)
+                val path = fileSelectedInterface.path() ?: ""
+                val multiple = fileSelectedInterface.multiple()
+                val separator = fileSelectedInterface.separator()
+                if ((suffix != null && suffix.isNotEmpty()) || path.isNotEmpty() || multiple) {
+                    chooseFilePath(suffix ?: "", path, multiple, separator)
                 } else {
                     val intent = Intent(Intent.ACTION_GET_CONTENT);
                     val mimeType = fileSelectedInterface.mimeType()
