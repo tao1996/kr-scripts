@@ -24,6 +24,7 @@ open class RunnableNode(currentConfigXml: String) : ClickableNode(currentConfigX
         val shellModeDefault = "default"
         val shellModeBgTask = "bg-task"
         val shellModeHidden = "hidden"
+        val shellModeTerminal = "terminal"
     }
 
     //

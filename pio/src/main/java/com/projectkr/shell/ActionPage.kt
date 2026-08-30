@@ -161,6 +161,10 @@ class ActionPage : AppCompatActivity() {
         override fun openFileChooser(fileSelectedInterface: ParamsFileChooserRender.FileSelectedInterface): Boolean {
             return chooseFilePath(fileSelectedInterface)
         }
+
+        override fun openTerminal(command: String, title: String?) {
+            this@ActionPage.launchTerminal(command, title)
+        }
     }
 
     private var fileSelectedInterface: ParamsFileChooserRender.FileSelectedInterface? = null
@@ -276,6 +280,13 @@ class ActionPage : AppCompatActivity() {
     }
 
     private fun menuItemExecute(menuOption: PageMenuOption, params: HashMap<String, String>) {
+        if (menuOption.shell == RunnableNode.shellModeTerminal) {
+            val command = ScriptEnvironmen.generateShellCommand(
+                    this, currentPageConfig.pageHandlerSh, params, menuOption, "")
+            launchTerminal(command, menuOption.title)
+            return
+        }
+
         val onDismiss = Runnable {
             if (menuOption.autoFinish) {
                 finish()
@@ -296,6 +307,19 @@ class ActionPage : AppCompatActivity() {
                 darkMode)
         dialog.show(supportFragmentManager, "")
         dialog.isCancelable = false
+    }
+
+    private fun launchTerminal(command: String, title: String?) {
+        try {
+            val intent = Intent(this, TerminalActivity::class.java)
+            intent.putExtra("command", command)
+            if (!title.isNullOrEmpty()) {
+                intent.putExtra("title", title)
+            }
+            startActivity(intent)
+        } catch (ex: Exception) {
+            Toast.makeText(this, "启动终端失败！", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun menuItemChooseFile(menuOption: PageMenuOption) {

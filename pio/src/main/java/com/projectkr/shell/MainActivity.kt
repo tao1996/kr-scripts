@@ -185,6 +185,15 @@ class MainActivity : AppCompatActivity() {
             override fun openFileChooser(fileSelectedInterface: ParamsFileChooserRender.FileSelectedInterface): Boolean {
                 return chooseFilePath(fileSelectedInterface)
             }
+
+            override fun openTerminal(command: String, title: String?) {
+                val intent = Intent(this@MainActivity, TerminalActivity::class.java)
+                intent.putExtra("command", command)
+                if (title != null && title.isNotEmpty()) {
+                    intent.putExtra("title", title)
+                }
+                startActivity(intent)
+            }
         }
     }
 

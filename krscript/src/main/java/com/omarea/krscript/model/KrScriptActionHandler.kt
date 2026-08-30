@@ -13,6 +13,10 @@ interface KrScriptActionHandler {
         return false
     }
 
+    // 在交互式终端中打开并执行命令
+    fun openTerminal(command: String, title: String?) {
+    }
+
     interface AddToFavoritesHandler {
         fun onAddToFavorites(clickableNode: ClickableNode, intent: Intent?)
     }

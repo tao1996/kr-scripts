@@ -418,5 +418,57 @@ public class ScriptEnvironmen {
         } catch (Exception ignored) {
         }
     }
+
+    /**
+     * 生成在交互式终端中执行的命令字符串（导出环境变量 + 执行器包装脚本）
+     *
+     * @param context  Context
+     * @param cmds     要执行的脚本内容
+     * @param params   参数（state/menu_id/file/folder 等）
+     * @param nodeInfo 节点信息（用于 PAGE_* 环境变量）
+     * @param tag      会话标识
+     */
+    public static String generateShellCommand(
+            Context context,
+            String cmds,
+            HashMap<String, String> params,
+            NodeInfoBase nodeInfo,
+            String tag) {
+        if (!inited) {
+            init(context);
+        }
+
+        HashMap<String, String> envParams = new HashMap<>();
+        if (params != null) {
+            envParams.putAll(params);
+        }
+
+        if (nodeInfo != null) {
+            String parentPageConfigDir = nodeInfo.getPageConfigDir();
+            String currentPageConfigPath = nodeInfo.getCurrentPageConfigPath();
+            envParams.put("PAGE_CONFIG_DIR", parentPageConfigDir);
+            envParams.put("PAGE_CONFIG_FILE", currentPageConfigPath);
+            if (currentPageConfigPath.startsWith("file:///android_asset/")) {
+                envParams.put("PAGE_WORK_DIR", new ExtractAssets(context).getExtractPath(parentPageConfigDir));
+                envParams.put("PAGE_WORK_FILE", new ExtractAssets(context).getExtractPath(currentPageConfigPath));
+            } else {
+                envParams.put("PAGE_WORK_DIR", parentPageConfigDir);
+                envParams.put("PAGE_WORK_FILE", currentPageConfigPath);
+            }
+        } else {
+            envParams.put("PAGE_CONFIG_DIR", "");
+            envParams.put("PAGE_CONFIG_FILE", "");
+            envParams.put("PAGE_WORK_DIR", "");
+            envParams.put("PAGE_WORK_FILE", "");
+        }
+
+        StringBuilder command = new StringBuilder();
+        for (String param : getVariables(envParams)) {
+            command.append("export ").append(param).append("\n");
+        }
+        command.append(getExecuteScript(context, cmds, tag));
+        command.append("\n");
+        return command.toString();
+    }
 }
 
