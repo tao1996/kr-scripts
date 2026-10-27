@@ -31,7 +31,7 @@ import com.omarea.krscript.ui.ActionListFragment
 import com.omarea.krscript.ui.DialogLogFragment
 import com.omarea.krscript.ui.ParamsFileChooserRender
 import com.omarea.krscript.ui.PageMenuLoader
-import kotlinx.android.synthetic.main.activity_action_page.*
+import com.projectkr.shell.databinding.ActivityActionPageBinding
 
 
 class ActionPage : AppCompatActivity() {
@@ -40,6 +40,7 @@ class ActionPage : AppCompatActivity() {
     private var handler = Handler()
     private lateinit var currentPageConfig: PageNode
     private var autoRunItemId = ""
+    private lateinit var binding: ActivityActionPageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +60,8 @@ class ActionPage : AppCompatActivity() {
 
         ThemeModeState.switchTheme(this)
 
-        setContentView(R.layout.activity_action_page)
+        binding = ActivityActionPageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         setTitle(R.string.app_name)
@@ -208,7 +210,7 @@ class ActionPage : AppCompatActivity() {
     }
 
     private fun addFab(menuOption: PageMenuOption) {
-        action_page_fab.run {
+        binding.actionPageFab.run {
             visibility = View.VISIBLE
             setOnClickListener {
                 onMenuItemClick(menuOption)

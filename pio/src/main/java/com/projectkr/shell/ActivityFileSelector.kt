@@ -17,7 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
 import com.omarea.common.ui.ProgressBarDialog
 import com.projectkr.shell.ui.AdapterFileSelector
-import kotlinx.android.synthetic.main.activity_file_selector.*
+import com.projectkr.shell.databinding.ActivityFileSelectorBinding
 import java.io.File
 
 class ActivityFileSelector : AppCompatActivity() {
@@ -29,12 +29,14 @@ class ActivityFileSelector : AppCompatActivity() {
     private var adapterFileSelector: AdapterFileSelector? = null
     var extension = ""
     var mode = MODE_FILE
+    private lateinit var binding: ActivityFileSelectorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // TODO:ThemeSwitch.switchTheme(this)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_file_selector)
+        binding = ActivityFileSelectorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
@@ -126,7 +128,7 @@ class ActivityFileSelector : AppCompatActivity() {
                     AdapterFileSelector.FileChooser(sdcard, onSelected, ProgressBarDialog(this), extension)
                 }
 
-                file_selector_list.adapter = adapterFileSelector
+                binding.fileSelectorList.adapter = adapterFileSelector
             }
         } else {
             requestPermissions()
